@@ -1,0 +1,212 @@
+﻿@{
+    ViewData["Title"] = "Categorias";
+}
+
+<div class="text-center m-5" id="titulo">
+    <h1 class="display-4">Categorias</h1>    
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="painel p-1 mt-2 rounded border border-2" id="pnl-lista-categorias">                
+                @*Aqui é carregado a lista de categorias dinamicamente via ajax*@
+            </div>
+        </div>        
+    </div>
+</div>
+
+@*//////////////////////////////Modal alterar/inserir Categoria/////////////////////////////*@
+<div class="modal fade" tabindex="-1" role="dialog" id="modal-ficha-categoria">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <label class="fs-4 fw-bold">Cadastro de Categoria - <span id="lbl-operacao">Novo</span></label>
+            </div>
+            <div class="modal-body">                  
+                <input type="hidden" id="modo" value="Insert" />
+                <form onSubmit="return false;" id="frm-categoria">     
+                    <input type="hidden" id="id-categoria-selecionado" />
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="edt-nome-categoria" class="form-label fw-bold">Nome</label>
+                            <input class="form-control" type="text" id="edt-nome-categoria"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">                                       
+                    <button type="button" class="btn btn-warning text-light" d="btn-sair-categoria" data-bs-dismiss="modal">&nbsp;<i class="fa-solid fa-door-open"></i>&nbsp;Sair&nbsp;</button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn-success" id="btn-confirmar-categoria">&nbsp;<i class="fa-solid fa-circle-check"></i>&nbsp;Confirmar&nbsp;</button>&nbsp;&nbsp;                                  
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+@*//////////////////////////////Modal Excluir Categoria/////////////////////////////*@
+<div class="modal fade" tabindex="-1" role="dialog" id="modal-excluir-categoria">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <label class="fs-4 fw-bold" id="lbl-categoria-excluir"></label>
+            </div>
+            <div class="modal-body">               
+                <div class=row>
+                    <div class="col-12">
+                        <p>Atenção! Deseja realmente excluir a categoria selecionada?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"> 
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal" style="color: white">&nbsp;<i class="fa-solid fa-door-open"></i>&nbsp;Cancelar&nbsp;</button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn-danger" id="btn-confirmar-excluir">&nbsp;<i class="fa-solid fa-circle-check"></i>&nbsp;Confirmar&nbsp;</button>&nbsp;&nbsp;
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+@section Scripts{
+    <script>
+        $(document).ready(async function(){
+            $('#loading').css('display', '');
+            var alturaDocumento = $("html").height(); 
+            SetPanelHeight();
+
+            $(window).on("resize", async function() {
+                var alturaDocumentoAtual = $("html").height();  
+                if(alturaDocumentoAtual != alturaDocumento){
+                    alturaDocumento = alturaDocumentoAtual;
+                    SetPanelHeight();
+                }
+            });
+
+            async function SetPanelHeight()
+            {
+                var painel = $(".painel");
+                var altura = alturaDocumento - $("#titulo").height() - $("footer").height() - $("#pnl-lista-categorias").position().top + 20;
+
+                painel.height(altura);
+                painel.css("max-height", altura);
+            };
+
+            ListaCategorias();            
+
+            $('#modal-ficha-categoria').on('shown.bs.modal', function () {
+                $('#edt-nome-categoria').trigger('focus');
+                $("#edt-nome-categoria").trigger('select');
+            });
+
+            $('#modal-ficha-categoria').on('hidden.bs.modal', function () {
+                $('#modo').val('Insert');
+                $('#lbl-operacao').html('Novo');
+                $("#id-categoria-selecionado").val(null);
+                $("#edt-nome-categoria").val(null);
+            });
+
+            $('#modal-excluir-categoria').on('hidden.bs.modal', function () {
+                $("#id-categoria-selecionado").val(null);
+            });
+
+            $("#edt-nome-categoria").on('keyup', function (event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    $('#btn-confirmar-categoria').click();
+                };
+            });
+
+            $("#btn-confirmar-categoria").on('click', function () {
+                    SalvarCategoria();               
+            });
+
+            $("#btn-confirmar-excluir").on('click', function () {
+                    SalvarCategoria();               
+            });
+
+            async function ListaCategorias() {
+                var url = "/Categoria/_Listar";               
+
+                await $.ajax({
+                    url: url
+                    , type: "GET"
+                    , data: {  }
+                    , datatype: "html"
+                    , success: function (data) {
+                        var pnl_lista_categorias = $('#pnl-lista-categorias');
+                        pnl_lista_categorias.empty();
+                        pnl_lista_categorias.hide().html(data).fadeIn();
+
+                        $('#loading').css('display', 'none');
+                    }
+                });
+            };
+
+            async function SalvarCategoria() {
+                var url;
+                var modo = $("#modo").val();
+
+                switch(modo){
+                    case "Insert" : 
+                        url = "/Categoria/Novo";
+                        break
+                    case "Edit" : 
+                        url = "/Categoria/Editar";
+                        break
+                    case "Delete" : 
+                        url = "/Categoria/Deletar";
+                        break
+                }
+
+                var id = $("#id-categoria-selecionado").val();
+                var nome = $("#edt-nome-categoria").val();
+
+                await $.ajax({
+                    url: url
+                    , type: "POST"
+                    , data: { id, nome }
+                    , datatype: "JSON"
+                    , success: function (response) {
+                        console.log(response);
+                        $('#modal-ficha-categoria').modal("hide");
+                        $('#modal-excluir-categoria').modal("hide"); 
+
+                        switch(response.statusCode)
+                        {
+                            case 201: 
+                                Exibir_Toast("sucesso", "Categoria incluído com sucesso!"); 
+                                break;
+                            case 204: 
+                                Exibir_Toast("sucesso", "Operação realizada com sucesso!"); 
+                                break;
+                            case 400: 
+                                Exibir_Toast("erro", "Erro ao realizar a operação!"); 
+                                break;
+                            case 404: 
+                                Exibir_Toast("erro", "Erro ao realizar a operação!"); 
+                                break;
+                        }
+
+                        ListaCategorias();
+                    }
+                });
+            };
+
+            $("#pnl-lista-categorias").on( "click", ".item-categoria", function(){
+                $("#modo").val("Edit");
+                var idCategoria = $(this).attr("idCategoria");
+                var nome = $("#categoria-nome-" + idCategoria).html();
+                $("#id-categoria-selecionado").val(idCategoria);
+                $("#edt-nome-categoria").val(nome);
+                $('#lbl-operacao').html('Alterar');
+                $('#modal-ficha-categoria').modal("show"); 
+            })
+
+            $("#pnl-lista-categorias").on( "click", ".excluir-categoria", function(){
+                $("#modo").val("Delete");
+                var idCategoria = $(this).attr("idCategoria");
+                var nome = $("#categoria-nome-" + idCategoria).html();                
+                $("#id-categoria-selecionado").val(idCategoria);
+                $("#lbl-categoria-excluir").html(nome);
+                $('#modal-excluir-categoria').modal("show"); 
+            })
+        }) 
+    </script>
+}

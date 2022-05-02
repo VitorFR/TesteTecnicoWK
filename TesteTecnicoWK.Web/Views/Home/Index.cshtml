@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="text-center m-5">
+    <h1 class="display-4">Olá! Seja Bem Vindo!</h1>    
+</div>
+<div class="container text-center">
+    <div class="row">
+        <div class="col-lg-6">
+            <a class="link-card" asp-controller="Produto" asp-action="Index">
+                <div class="card-home p-5 mt-2 rounded border border-1">                
+                    <i class="fa-solid fa-box m-3" style="font-size: 82px;"></i><br />
+                    <span class="mb-3" style="font-size: 20px; font-weight: 600">Produtos</span>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-6">
+            <a class="link-card" asp-controller="Categoria" asp-action="Index">
+                <div class="card-home p-5 mt-2 rounded border border-1">  
+                    <i class="fa-solid fa-folder m-3" style="font-size: 82px;"></i><br />
+                    <span class="mb-3" style="font-size: 20px; font-weight: 600">Categorias</span>                          
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    <script>
+        $(document).ready( function(){
+          var maxHeight = $("body").css("height");
+        }) 
+    </script>
+}

@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Teste Técnico WK</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />    
+    <script src="https://kit.fontawesome.com/0e23447d59.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="~/TesteTecnicoWK.Web.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <div class="container-fluid p-3 mb-3 text-light bg-dark border-bottom box-shadow top-bar">
+            <div class="row">
+                <div class="col-1">
+                    <a data-bs-toggle="offcanvas" href="#pnl-menu-lateral" role="button" aria-controls="pnl-menu-lateral">
+                        <i class="fas fa-bars text-white"></i>
+                    </a>
+                </div>
+                <div class="col-4">
+                    <span>@ViewData["Title"] - Teste Técnico WK</span>
+                </div>
+                <div class="col-7 d-flex justify-content-end pe-5">
+                    <span><i class="fa-solid fa-user"></i> &nbsp; Vítor Ferreira Rodrigues</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container" id="conteudo">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted bg-dark">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    &copy; 2022 - Vítor Ferreira Rodrigues - <a href="https://www.linkedin.com/in/v%C3%ADtor-ferreira-rodrigues-4a9b3451/" target="_blank" title="Perfil LinkedIn de Vítor Ferreira Rodrigues"><i class="fa-brands fa-linkedin text-light fs-4"></i></a>
+                </div>
+            </div>            
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/MyToast.js" asp-append-version="true"></script>
+    <script src="~/js/Mascara.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+@*Inicio do menu deslizante lateral*@
+<div class="offcanvas offcanvas-start" tabindex="-1" id="pnl-menu-lateral" aria-labelledby="lbl-menu-lateral">
+    @*<div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="lbl-menu-lateral">Teste Tecnico WK</h5>
+        <button type="button" class="btn-close"data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>*@
+    <div class="text-center bg-black pt-3 pb-3 mb-5">
+        <img src="~/Images/User.png" class="rounded-circle bg-light mb-3 img-menu-lateral"/><br />
+        <span class="text-light fs-4 fw-bold">Teste Técnico WK</span>
+    </div>
+    
+    <div class="offcanvas-body">
+        <ul class="nav flex-column">
+            <li class="nav-item rounded link-menu-lateral">
+                <a class="nav-link" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house m-2"></i>Home</a>
+            </li>
+            <li class="nav-item rounded link-menu-lateral">
+                <a class="nav-link" asp-controller="Produto" asp-action="Index"><i class="fa-solid fa-box m-2"></i>Produtos</a>
+            </li>
+            <li class="nav-item rounded link-menu-lateral">
+                <a class="nav-link" asp-controller="Categoria" asp-action="Index"><i class="fa-solid fa-folder m-2"></i>Categorias</a>
+            </li>
+        </ul>
+    </div>
+    <div class="footer text-light bg-black">
+        <div class="container ">
+            <div class="row">
+                <div class="col-10 fs-4">
+                    <a href="#" class="text-white" title="Fazer LogOff do sistema"><i class="fa-solid fa-door-closed"></i></a>
+                </div>
+                <div class="col-2">
+                    &nbsp<button type="button" title="Fecha menu" class="btn-close btn-close-white"data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*Fim do menu deslizante lateral*@
+
+@*Div que implementa a tela de loading enquanto uma operação é executada*@
+<div class="text-center" id="loading" style="position: absolute; top: 0; left: 0; width: 100%; min-height: 100%; background-color: black; z-index: 10000; opacity: 0.7; display: none">
+    <div class="spinner-border text-light" role="status" style="z-index: 100; top: 200px;  position: relative; width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+@*Fim DIV loading*@
+
+@*DIV para exibir mensagens de retorno na tela dinamicamente. Controlado pelo script MyToast.js*@
+<div class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" data-bs-delay="4000" aria-atomic="true" id="toast" style="position: absolute; z-index: 10000; top: 50px; right: 20px">
+    <div class="d-flex">
+        <div class="toast-body" id="toast-message">
+      
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+</div>
+@*Fim DIV mensagem*@
+
+<script>
+    $(document).ready( () => {
+        $('#loading').height($("body").height());
+        $('input').attr("autocomplete", "off");
+    });
+
+</script>

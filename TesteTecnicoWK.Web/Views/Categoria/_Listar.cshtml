@@ -1,0 +1,23 @@
+﻿@model IEnumerable<TesteTecnicoWK.Dominio.Entidades.Categoria>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">@Html.DisplayNameFor(model => model.Nome)</th>
+      <th scope="col">@Html.DisplayNameFor(model => model.Dt_Inclusao)</th>
+      <th scope="col">
+          <a href="#" title="Cadastrar Categoria" data-bs-toggle="modal" data-bs-target="#modal-ficha-categoria"><i class="fas fa-plus-circle text-success fs-5"></i></a>
+      </th>
+    </tr>
+  </thead>
+  <tbody>    
+      @foreach(var categoria in Model)
+      {
+            <tr >
+                <td class="item-categoria" idCategoria="@categoria.Id" id="categoria-nome-@categoria.Id">@categoria.Nome</td>
+                <td class="item-categoria" idCategoria="@categoria.Id">@categoria.Dt_Inclusao.ToShortDateString()</td>
+                <td class="excluir-categoria" idCategoria="@categoria.Id"><i class="fa-solid fa-trash text-danger"></i></td>
+            </tr>   
+      }    
+  </tbody>
+</table>

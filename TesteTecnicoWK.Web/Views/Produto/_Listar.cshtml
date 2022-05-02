@@ -1,0 +1,35 @@
+﻿@model IEnumerable<TesteTecnicoWK.Dominio.Entidades.Produto>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">@Html.DisplayNameFor(model => model.Nome)</th>
+      <th scope="col">@Html.DisplayNameFor(model => model.Dt_Inclusao)</th>
+      <th scope="col">@Html.DisplayNameFor(model => model.Preco_Venda)</th>
+      <th scope="col">@Html.DisplayNameFor(model => model.Categoria)</th>
+      <th scope="col">@Html.DisplayNameFor(model => model.Descricao)</th>
+      <th scope="col">
+          <a href="#" title="Cadastrar Produto" data-bs-toggle="modal" data-bs-target="#modal-ficha-produto"><i class="fas fa-plus-circle text-success fs-5"></i></a>
+      </th>
+    </tr>
+  </thead>
+  <tbody>    
+      @foreach(var produto in Model)
+      {
+            string? descricao = produto.Descricao;
+            if (descricao != null)
+            {
+                descricao = (descricao.Length > 100)? produto.Descricao.Substring(0, 100) + " ..." : descricao;
+            }
+
+            <tr >
+                <td class="item-produto" idProduto="@produto.Id">@produto.Nome</td>
+                <td class="item-produto" idProduto="@produto.Id">@produto.Dt_Inclusao.ToShortDateString()</td>
+                <td class="item-produto" idProduto="@produto.Id">@produto.Preco_Venda.ToString("C2")</td>
+                <td class="item-produto" idProduto="@produto.Id">@produto.Categoria.Nome</td>
+                <td class="item-produto" idProduto="@produto.Id">@descricao</td>
+                <td class="excluir-produto" idProduto="@produto.Id"><i class="fa-solid fa-trash text-danger"></i></td>
+            </tr>   
+      }    
+  </tbody>
+</table>

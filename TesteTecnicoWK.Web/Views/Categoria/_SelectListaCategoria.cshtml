@@ -1,0 +1,9 @@
+﻿@model IEnumerable<TesteTecnicoWK.Dominio.Entidades.Categoria>
+    
+<label for="slc-categoria" class="form-label fw-bold">Categoria</label>
+<select class="form-control" id="slcCategoria"  style="width: 100%">
+    @foreach (var categoria in Model)
+    {
+        <option value="@categoria.Id">@categoria.Nome</option>
+    }
+</select>

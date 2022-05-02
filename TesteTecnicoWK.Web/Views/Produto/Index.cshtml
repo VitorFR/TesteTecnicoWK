@@ -1,0 +1,285 @@
+﻿@{
+    ViewData["Title"] = "Produtos";
+}
+
+<div class="text-center m-5" id="titulo">
+    <h1 class="display-4">Produtos</h1>    
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="painel p-1 mt-2 rounded border border-2" id="pnl-lista-produtos">                
+                @*Aqui é carregado a lista de produtos dinamicamente via ajax*@
+            </div>
+        </div>        
+    </div>
+</div>
+
+@*//////////////////////////////Modal alterar/inserir Produto/////////////////////////////*@
+<div class="modal fade" tabindex="-1" role="dialog" id="modal-ficha-produto">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <label class="fs-4 fw-bold">Cadastro de Produto - <span id="lbl-operacao">Novo</span></label>
+            </div>
+            <div class="modal-body">                  
+                <input type="hidden" id="modo" value="Insert" />
+                <form onSubmit="return false;" id="frm-produto">     
+                    <input type="hidden" id="id-produto-selecionado" name="Id"/>
+                    <input type="hidden" id="id-produto-categoria" name="IdCategoria"/>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label for="edt-nome-produto" class="form-label fw-bold">Nome</label>
+                            <input class="form-control" type="text" id="edt-nome-produto" name="Nome"/>
+                        </div>
+                    </div>
+                    <div class="row mb-3">                        
+                        <div class="col-8" id="pnl-slc-categoria">
+                        </div>
+                        <div class="col-4">
+                            <label for="edt-preco-produto" class="form-label fw-bold">Preço</label>
+                            <input class="form-control" type="text" id="edt-preco-produto" name="Preco_Venda"/>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label for="edt-descricao" class="form-label fw-bold">Descrição</label>
+                            <textarea class="form-control" id="edt-descricao-produto" name="Descricao" rows=3></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">                                       
+                    <button type="button" class="btn btn-warning text-light" d="btn-sair-produto" data-bs-dismiss="modal">&nbsp;<i class="fa-solid fa-door-open"></i>&nbsp;Sair&nbsp;</button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn-success" id="btn-confirmar-produto">&nbsp;<i class="fa-solid fa-circle-check"></i>&nbsp;Confirmar&nbsp;</button>&nbsp;&nbsp;                                  
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+@*//////////////////////////////Modal Excluir Produto/////////////////////////////*@
+<div class="modal fade" tabindex="-1" role="dialog" id="modal-excluir-produto">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <label class="fs-4 fw-bold" id="lbl-produto-excluir"></label>
+            </div>
+            <div class="modal-body">               
+                <div class=row>
+                    <div class="col-12">
+                        <p>Atenção! Deseja realmente excluir o produto selecionado?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"> 
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal" style="color: white">&nbsp;<i class="fa-solid fa-door-open"></i>&nbsp;Cancelar&nbsp;</button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn-danger" id="btn-confirmar-excluir">&nbsp;<i class="fa-solid fa-circle-check"></i>&nbsp;Confirmar&nbsp;</button>&nbsp;&nbsp;
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+@section Scripts{
+    <script>
+        $(document).ready(async function(){
+            $('#loading').css('display', '');
+            var alturaDocumento = $("html").height(); 
+            SetPanelHeight();
+
+            $(window).on("resize", async function() {
+                var alturaDocumentoAtual = $("html").height();  
+                if(alturaDocumentoAtual != alturaDocumento){
+                    alturaDocumento = alturaDocumentoAtual;
+                    SetPanelHeight();
+                }
+            });
+
+            async function SetPanelHeight()
+            {
+                var painel = $(".painel");
+                var altura = alturaDocumento - $("#titulo").height() - $("footer").height() - $("#pnl-lista-produtos").position().top + 20;
+
+                painel.height(altura);
+                painel.css("max-height", altura);
+            };
+
+            ListaProdutos(); 
+            ListaCategorias(); 
+
+            $('#modal-ficha-produto').on('shown.bs.modal', function () {
+                $('#edt-nome-produto').trigger('focus');
+                $("#edt-nome-produto").trigger('select');
+            });
+
+            $('#modal-ficha-produto').on('hidden.bs.modal', function () {
+                $('#frm-produto').each(function(){
+                    this.reset();
+                });
+                $('#modo').val('Insert');
+                $('#lbl-operacao').html('Novo');
+                //$("#id-produto-selecionado").val(null);
+                //$("#id-produto-categoria").val(null);
+                //$("#edt-nome-produto").val(null);
+            });
+
+            $('#modal-excluir-produto').on('hidden.bs.modal', function () {
+                $("#id-produto-selecionado").val(null);
+            });
+
+            $("#edt-nome-produto").on('keyup', function (event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    $('#btn-confirmar-produto').click();
+                };
+            });
+
+            $("#edt-preco-produto").on("focusin", function(){
+                var valor = RemoveMascaraDinheiro($(this).val());
+                $(this).val(valor);
+            });
+
+            $("#edt-preco-produto").on("focusout", function(){
+                var valor = AddMascaraDinheiro($(this).val());
+                $(this).val(valor);
+            });
+
+            $("#btn-confirmar-produto").on('click', function () {
+                $("#edt-preco-produto").val(RemoveMascaraDinheiro($("#edt-preco-produto").val()));
+                SalvarProduto();               
+            });
+
+            $("#btn-confirmar-excluir").on('click', function () {
+                $("#edt-preco-produto").val(RemoveMascaraDinheiro($("#edt-preco-produto").val()));
+                SalvarProduto();               
+            });
+
+            async function ListaProdutos() {
+                var url = "/Produto/_Listar";               
+
+                await $.ajax({
+                    url: url
+                    , type: "GET"
+                    , data: {  }
+                    , datatype: "html"
+                    , success: function (data) {
+                        var pnl_lista_produtos = $('#pnl-lista-produtos');
+                        pnl_lista_produtos.empty();
+                        pnl_lista_produtos.hide().html(data).fadeIn();
+
+                        $('#loading').css('display', 'none');
+                    }
+                });
+            };
+
+            function ListaCategorias() {
+                var url = "/Categoria/_SelectListaCategoria";               
+
+                $.ajax({
+                    url: url
+                    , type: "GET"
+                    , data: {  }
+                    , datatype: "html"
+                    , success: function (data) {
+                        var pnl_slc_categoria = $('#pnl-slc-categoria');
+                        pnl_slc_categoria.empty();
+                        pnl_slc_categoria.hide().html(data).fadeIn();  
+                        $("#id-produto-categoria").val($("#slcCategoria").val());
+                    }
+                });
+            };
+
+            function GetProduto(id) {
+                var url = "/Produto/Get";  
+                $.ajax({
+                    url: url
+                    , type: "GET"
+                    , data: { id }
+                    , datatype: "JSON"
+                    , success: function (data) {
+                        $("#id-produto-categoria").val(data.idCategoria);
+                        $("#id-produto-selecionado").val(data.id);
+                        $("#edt-nome-produto").val(data.nome);
+                        $("#edt-preco-produto").val(AddMascaraDinheiro(data.preco_Venda));
+                        $("#edt-descricao-produto").val(data.descricao);
+                        $("#slcCategoria").val(data.idCategoria);
+                        $('#lbl-operacao').html('Alterar');
+                        $('#modal-ficha-produto').modal("show"); 
+                    }
+                });
+            };
+
+            async function SalvarProduto() {
+                var url;
+                var modo = $("#modo").val();
+                
+                switch(modo){
+                    case "Insert" : 
+                        url = "/Produto/Novo";
+                        break
+                    case "Edit" : 
+                        url = "/Produto/Editar";
+                        break
+                    case "Delete" : 
+                        url = "/Produto/Deletar";
+                        break
+                }
+
+                var id = $("#id-produto-selecionado").val();
+                var idCategoria = $("#id-produto-categoria").val();
+                var nome = $("#edt-nome-produto").val();
+
+                await $.ajax({
+                    url: url
+                    , type: "POST"
+                    , data: $("#frm-produto").serialize()
+                    , datatype: "JSON"
+                    , success: function (response) {
+                        console.log(response);
+                        $('#modal-ficha-produto').modal("hide");
+                        $('#modal-excluir-produto').modal("hide"); 
+
+                        switch(response.statusCode)
+                        {
+                            case 201: 
+                                Exibir_Toast("sucesso", "Produto incluído com sucesso!"); 
+                                break;
+                            case 204: 
+                                Exibir_Toast("sucesso", "Operação realizada com sucesso!"); 
+                                break;
+                            case 400: 
+                                Exibir_Toast("erro", "Erro ao realizar a operação!"); 
+                                break;
+                            case 404: 
+                                Exibir_Toast("erro", "Erro ao realizar a operação!"); 
+                                break;
+                        }
+
+                        ListaProdutos();
+                    }
+                });
+            };
+
+            $("#pnl-slc-categoria").on("change", "#slcCategoria", function(){
+                var idCategoria = $(this).val();
+                $("#id-produto-categoria").val(idCategoria);
+            });
+
+            $("#pnl-lista-produtos").on( "click", ".item-produto", function(){
+                $("#modo").val("Edit");
+                GetProduto($(this).attr("idProduto"));
+                
+            });
+
+            $("#pnl-lista-produtos").on( "click", ".excluir-produto", function(){
+                $("#modo").val("Delete");
+                var idProduto = $(this).attr("idProduto");
+                var nome = $("#produto-nome-" + idProduto).html();                
+                $("#id-produto-selecionado").val(idProduto);
+                $("#lbl-produto-excluir").html(nome);
+                $('#modal-excluir-produto').modal("show"); 
+            })
+
+        });
+    </script>
+}
+

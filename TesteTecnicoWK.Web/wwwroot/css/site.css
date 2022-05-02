@@ -1,0 +1,66 @@
+html {
+  font-size: 14px;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+    background-color: #F3F2EF;
+}
+
+tbody > tr {
+    cursor: pointer;
+}
+
+.offcanvas{
+    max-width : 300px !important
+}
+
+.card-home {
+    background-color: white;
+    width: 100%;
+}
+
+.painel {
+    background-color: white;
+    overflow-y: scroll;
+    width: 100%;
+}
+
+.card-home:hover {
+    color: black;
+    cursor: pointer;
+}
+
+.top-bar {
+    font-weight: 600;
+    font-size: 18px;
+}
+
+#pnl-menu-lateral {
+    background-color: #F3F2EF;
+}
+
+.link-menu-lateral:hover {
+    background-color: white
+}
+
+.img-menu-lateral {
+    width: 100px;
+    height: 100px
+}
+
+.link-card {
+    text-decoration: none;
+    color: #212529;
+}
+
+@media (max-width: 600px) {
+    .top-bar {        
+        font-size: 12px;
+    }
+}
